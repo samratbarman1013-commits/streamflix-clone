@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STREAMFLIX — Watch TV Shows Online (Demo Clone)</title>
+<meta name="description" content="A Netflix-style streaming UI clone built as a front-end demo. Not affiliated with Netflix.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0b0b;
+  --bg-2:#141414;
+  --surface:#1a1a1a;
+  --surface-2:#232323;
+  --border:rgba(255,255,255,.09);
+  --text:#f5f5f5;
+  --text-dim:#a3a3a3;
+  --red:#e50914;
+  --red-dim:#b20710;
+  --gold:#e8b93a;
+  --font-display:'Bebas Neue', Impact, sans-serif;
+  --font-body:'DM Sans', system-ui, -apple-system, sans-serif;
+  --shadow:0 18px 40px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+/* ---------- NAV ---------- */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  display:flex;align-items:center;gap:26px;
+  padding:18px clamp(16px,4vw,60px);
+  transition:background .35s ease, backdrop-filter .35s ease, padding .35s ease;
+}
+.nav.scrolled{
+  background:rgba(11,11,11,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding-top:12px;padding-bottom:12px;
+}
+.wordmark{
+  font-family:var(--font-display);
+  font-size:2rem;letter-spacing:.5px;
+  color:var(--red);
+  text-shadow:0 2px 18px rgba(229,9,20,.45);
+  line-height:1;white-space:nowrap;
+}
+.nav__links{display:flex;gap:22px;font-size:.94rem;color:var(--text-dim)}
+.nav__links a{transition:color .2s}
+.nav__links a:hover,.nav__links a.active{color:var(--text)}
+.nav__right{margin-left:auto;display:flex;align-items:center;gap:20px;color:var(--text-dim)}
+.nav__right svg{width:20px;height:20px;cursor:pointer;transition:color .2s}
+.nav__right svg:hover{color:var(--text)}
+.avatar{
+  width:34px;height:34px;border-radius:6px;
+  background:linear-gradient(135deg,#e50914,#7a0007);
+  display:grid;place-items:center;font-weight:700;font-size:.85rem;color:#fff;
+  cursor:pointer;
+}
+.nav__toggle{display:none;font-size:1.5rem;color:var(--text)}
+
+/* ---------- HERO ---------- */
+.hero{
+  position:relative;
+  min-height:88vh;
+  display:flex;align-items:flex-end;
+  padding:0 clamp(16px,4vw,60px) 8vh;
+  overflow:hidden;
+}
+.hero__bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(120% 120% at 78% 12%, rgba(229,9,20,.34), transparent 55%),
+    radial-gradient(90% 90% at 15% 90%, rgba(20,40,90,.55), transparent 60%),
+    linear-gradient(160deg,#1b1b25 0%, #0d0d12 60%, #0b0b0b 100%);
+}
+.hero__bg::after{
+  content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,transparent,#000 30%,#000 70%,transparent);
+}
+.hero__fade{
+  position:absolute;left:0;right:0;bottom:0;height:34%;
+  background:linear-gradient(to top,var(--bg) 6%, rgba(11,11,11,.7) 45%, transparent);
+  z-index:2;
+}
+.hero__content{position:relative;z-index:3;max-width:640px;animation:rise .9s ease both}
+.hero__tag{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:16px;
+}
+.hero__tag::before{content:"";width:26px;height:1px;background:var(--gold)}
+.hero__title{
+  font-family:var(--font-display);
+  font-size:clamp(3.4rem,9vw,6.4rem);
+  line-height:.92;letter-spacing:1px;
+  margin-bottom:14px;
+  text-shadow:0 6px 30px rgba(0,0,0,.7);
+}
+.hero__meta{display:flex;flex-wrap:wrap;align-items:center;gap:12px;color:var(--text-dim);font-size:.9rem;margin-bottom:16px}
+.badge{border:1px solid var(--border);padding:2px 9px;border-radius:4px;font-size:.72rem;letter-spacing:.06em}
+.match{color:#46d369;font-weight:700}
+.hero__desc{color:#d8d8d8;font-size:1.02rem;line-height:1.6;max-width:520px;margin-bottom:26px}
+.hero__actions{display:flex;gap:14px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 26px;border-radius:6px;font-weight:700;font-size:1rem;
+  transition:transform .18s ease, background .2s, opacity .2s;
+}
+.btn svg{width:22px;height:22px}
+.btn--play{background:#f5f5f5;color:#111}
+.btn--play:hover{background:#dcdcdc;transform:translateY(-2px)}
+.btn--info{background:rgba(109,109,110,.6);color:#fff}
+.btn--info:hover{background:rgba(109,109,110,.42);transform:translateY(-2px)}
+
+/* ---------- ROWS ---------- */
+main{position:relative;z-index:4;margin-top:-6vh;padding-bottom:60px}
+.row{margin:34px 0}
+.row__head{display:flex;align-items:baseline;gap:12px;padding:0 clamp(16px,4vw,60px);margin-bottom:12px}
+.row__title{font-size:1.28rem;font-weight:700;letter-spacing:.2px}
+.row__sub{font-size:.78rem;color:var(--text-dim)}
+.row__wrap{position:relative}
+.row__track{
+  display:flex;gap:12px;
+  overflow-x:auto;overflow-y:visible;
+  padding:14px clamp(16px,4vw,60px) 34px;
+  scroll-behavior:smooth;
+  scrollbar-width:none;
+}
+.row__track::-webkit-scrollbar{display:none}
+.card{
+  position:relative;flex:0 0 auto;
+  width:230px;aspect-ratio:16/9;border-radius:8px;
+  overflow:hidden;cursor:pointer;
+  transition:transform .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s;
+  scroll-snap-align:start;
+  box-shadow:0 6px 18px rgba(0,0,0,.4);
+}
+.card:hover,.card:focus-visible{transform:scale(1.08);z-index:5;box-shadow:var(--shadow);outline:none}
+.card__art{position:absolute;inset:0}
+.card__art::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.15) 45%,transparent 70%);
+}
+.card__genre{
+  position:absolute;top:10px;left:10px;z-index:2;
+  font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.18);
+  padding:3px 7px;border-radius:4px;backdrop-filter:blur(4px);
+}
+.card__title{
+  position:absolute;left:12px;right:12px;bottom:10px;z-index:2;
+  font-family:var(--font-display);font-size:1.45rem;letter-spacing:.6px;line-height:1;
+  text-shadow:0 2px 10px rgba(0,0,0,.7);
+}
+.card__top{
+  position:absolute;top:8px;right:10px;z-index:2;
+  font-family:var(--font-display);font-size:1.9rem;color:#fff;
+  -webkit-text-stroke:2px rgba(0,0,0,.55);
+  line-height:1;
+}
+.arrow{
+  position:absolute;top:0;bottom:34px;width:54px;z-index:6;
+  display:grid;place-items:center;
+  background:linear-gradient(to right,rgba(11,11,11,.85),transparent);
+  color:#fff;opacity:0;transition:opacity .25s;
+}
+.arrow.right{right:0;background:linear-gradient(to left,rgba(11,11,11,.85),transparent)}
+.arrow.left{left:0}
+.row__wrap:hover .arrow{opacity:1}
+.arrow svg{width:30px;height:30px}
+.arrow:hover{color:var(--red)}
+
+/* ---------- MODAL ---------- */
+.modal{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal.open{display:flex;animation:fade .25s ease}
+.modal__box{
+  width:min(720px,94vw);max-height:88vh;overflow:auto;
+  background:var(--bg-2);border:1px solid var(--border);border-radius:12px;
+  box-shadow:var(--shadow);animation:rise .3s ease;
+}
+.modal__banner{position:relative;aspect-ratio:16/7;overflow:hidden}
+.modal__banner::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,var(--bg-2),transparent 75%)}
+.modal__close{
+  position:absolute;top:14px;right:14px;z-index:3;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(20,20,20,.85);display:grid;place-items:center;font-size:1.2rem;
+}
+.modal__close:hover{background:#000}
+.modal__body{padding:0 30px 30px;margin-top:-40px;position:relative;z-index:2}
+.modal__title{font-family:var(--font-display);font-size:2.6rem;letter-spacing:1px;margin-bottom:10px}
+.modal__actions{display:flex;gap:12px;margin:16px 0}
+.modal__desc{color:#d0d0d0;line-height:1.65;font-size:.96rem}
+.modal__grid{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin-top:18px;font-size:.9rem}
+.modal__grid dt{color:var(--text-dim)}
+.modal__grid dd{color:var(--text)}
+
+/* ---------- FOOTER ---------- */
+footer{
+  padding:50px clamp(16px,4vw,60px) 40px;
+  border-top:1px solid var(--border);
+  color:var(--text-dim);font-size:.85rem;
+}
+.footer__cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 30px;max-width:900px;margin-bottom:26px}
+.footer__cols a{transition:color .2s}
+.footer__cols a:hover{color:var(--text)}
+.disclaimer{
+  max-width:900px;border:1px dashed rgba(229,9,20,.4);
+  background:rgba(229,9,20,.06);border-radius:8px;padding:14px 18px;
+  color:#e7b7b9;line-height:1.6;margin-bottom:22px;
+}
+.disclaimer b{color:#ff6b72}
+.copyright{max-width:900px}
+
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+@media (max-width:860px){
+  .nav__links{display:none}
+  .nav__toggle{display:block;margin-left:auto;order:3}
+  .hero{min-height:78vh}
+  .card{width:170px}
+}
+@media (max-width:520px){
+  .wordmark{font-size:1.6rem}
+  .hero__title{font-size:3rem}
+  .card{width:150px}
+  .modal__body{padding:0 18px 22px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="wordmark">STREAMFLIX</div>
+  <div class="nav__links">
+    <a href="#" class="active">Home</a>
+    <a href="#trending">TV Shows</a>
+    <a href="#movies">Movies</a>
+    <a href="#new">New &amp; Popular</a>
+    <a href="#mylist">My List</a>
+  </div>
+  <div class="nav__right">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+    <div class="avatar">SB</div>
+  </div>
+  <div class="nav__toggle" id="navToggle">☰</div>
+</nav>
+
+<header class="hero">
+  <div class="hero__bg"></div>
+  <div class="hero__fade"></div>
+  <div class="hero__content">
+    <span class="hero__tag">Streamflix Original Series</span>
+    <h1 class="hero__title">MIDNIGHT<br>CIRCUIT</h1>
+    <div class="hero__meta">
+      <span class="match">98% Match</span>
+      <span>2026</span>
+      <span class="badge">U/A 16+</span>
+      <span>3 Seasons</span>
+      <span class="badge">4K HDR</span>
+    </div>
+    <p class="hero__desc">In a rain-soaked megacity where memories can be bought and sold, a burned-out detective and a rogue memory-broker race to expose the corporation rewriting the city's past — one mind at a time.</p>
+    <div class="hero__actions">
+      <button class="btn btn--play" onclick="openModal(featured)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Play
+      </button>
+      <button class="btn btn--info" onclick="openModal(featured)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg> More Info
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="rows"></main>
+
+<footer>
+  <div class="disclaimer">
+    <b>Demo project — not affiliated with Netflix.</b> This page is a front-end UI clone built for learning and portfolio purposes. It is a static mock-up: there are no real videos, no accounts, and it does not collect any login or payment information. All titles, artwork and details shown are fictional.
+  </div>
+  <div class="footer__cols">
+    <a href="#">Audio Description</a><a href="#">Help Centre</a><a href="#">Gift Cards</a>
+    <a href="#">Media Centre</a><a href="#">Investor Relations</a><a href="#">Jobs</a>
+    <a href="#">Terms of Use</a><a href="#">Privacy</a><a href="#">Legal Notices</a>
+    <a href="#">Cookie Preferences</a><a href="#">Corporate Information</a><a href="#">Contact Us</a>
+  </div>
+  <p class="copyright">© 2026 Streamflix Demo. A fan-made interface study.</p>
+</footer>
+
+<div class="modal" id="modal">
+  <div class="modal__box">
+    <div class="modal__banner" id="mBanner">
+      <button class="modal__close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <h2 class="modal__title" id="mTitle"></h2>
+      <div class="hero__meta" id="mMeta"></div>
+      <div class="modal__actions">
+        <button class="btn btn--play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Play</button>
+        <button class="btn btn--info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> My List</button>
+      </div>
+      <p class="modal__desc" id="mDesc"></p>
+      <dl class="modal__grid" id="mGrid"></dl>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---- fictional catalogue ---- */
+const G = [
+  'linear-gradient(135deg,#2b1055,#7597de)',
+  'linear-gradient(135deg,#ff512f,#dd2476)',
+  'linear-gradient(135deg,#0f2027,#2c5364)',
+  'linear-gradient(135deg,#42275a,#734b6d)',
+  'linear-gradient(135deg,#1a2980,#26d0ce)',
+  'linear-gradient(135deg,#c31432,#240b36)',
+  'linear-gradient(135deg,#134e5e,#71b280)',
+  'linear-gradient(135deg,#614385,#516395)',
+  'linear-gradient(135deg,#e96443,#904e95)',
+  'linear-gradient(135deg,#232526,#414345)',
+  'linear-gradient(135deg,#8e2de2,#4a00e0)',
+  'linear-gradient(135deg,#f7971e,#ffd200)',
+  'linear-gradient(135deg,#0b8793,#360033)',
+  'linear-gradient(135deg,#3a1c71,#d76d77)',
+  'linear-gradient(135deg,#141e30,#243b55)',
+  'linear-gradient(135deg,#870000,#190a05)'
+];
+let gi=0; const grad=()=>G[gi++%G.length];
+
+const T=(t,genre,year,match,desc,extra={})=>({t,genre,year,match,desc,grad:grad(),...extra});
+
+const featured=T('Midnight Circuit','Sci-Fi Thriller','2026','98%','In a rain-soaked megacity where memories can be bought and sold, a burned-out detective and a rogue memory-broker race to expose the corporation rewriting the city\u2019s past.',{badge:'U/A 16+',cast:'Ira Menon, Dev Raghunath, Naina Kapoor',creator:'Written by A. Bose'});
+
+const rows=[
+ {id:'trending',title:'Trending Now',sub:'Updated today',items:[
+   T('Midnight Circuit','Sci-Fi','2026','98%','A detective and a memory-broker unravel a corporate conspiracy.'),
+   T('Crimson Hour','Crime','2025','95%','A prosecutor\u2019s perfect record hides one buried case.'),
+   T('The Silent Fleet','Docu','2025','91%','Inside the ghost ships that vanish from every radar.'),
+   T('Paper Tigers','Drama','2024','89%','Three siblings inherit a crumbling newspaper empire.'),
+   T('Neon Monsoon','Action','2026','96%','A courier carries a secret through flooded streets.'),
+   T('The Last Ledger','Thriller','2025','93%','An auditor stumbles onto a fortune that never existed.'),
+   T('Salt & Static','Mystery','2024','88%','A radio host receives calls from a town that isn\u2019t there.')
+ ]},
+ {id:'top10',title:'Top 10 in India Today',sub:'',top:true,items:[
+   T('Midnight Circuit','Sci-Fi','2026','98%','A memory-broker thriller set in a rain-soaked megacity.'),
+   T('Rooftop Rebels','Comedy','2025','92%','Four flatmates, one illegal rooftop garden, endless chaos.'),
+   T('Glasshouse','Drama','2025','90%','A family\u2019s glass-walled home leaves nowhere to hide.'),
+   T('Zero Day Diary','Thriller','2026','94%','A leaked diary predicts the next forty-eight hours.'),
+   T('Chai & Circuits','Comedy','2024','87%','A startup runs on tea, hope and one overloaded server.'),
+   T('The Long Platform','Drama','2025','91%','Two strangers wait for a train that never comes.'),
+   T('Kite Season','Family','2024','85%','A festival, a rivalry, and a rooftop full of kites.'),
+   T('Blackout Bureau','Action','2026','93%','A black-ops unit goes dark on purpose.'),
+   T('Monsoon Letters','Romance','2025','89%','A decade of letters, delivered all at once.'),
+   T('The Ninth Floor','Horror','2025','90%','The lift stops where no floor should be.')
+ ]},
+ {id:'new',title:'New Releases',sub:'',items:[
+   T('Halcyon Drift','Sci-Fi','2026','94%','A generation ship wakes a century too early.'),
+   T('Bazaar of Thieves','Heist','2026','92%','The perfect heist, planned inside a spice market.'),
+   T('Static Bloom','Horror','2026','88%','Flowers grow where the signal is strongest.'),
+   T('The Cartographer','Adventure','2025','90%','She maps a coastline that keeps moving.'),
+   T('Velvet Rope','Drama','2025','86%','Inside the last great nightclub in the city.'),
+   T('Iron Orchard','Western','2024','87%','A rancher trades cattle for something stranger.')
+ ]},
+ {id:'movies',title:'Action & Adventure',sub:'',items:[
+   T('Neon Monsoon','Action','2026','96%','A courier races a storm and a syndicate.'),
+   T('Blackout Bureau','Action','2026','93%','An off-grid unit hunts its own shadow.'),
+   T('The Last Ledger','Thriller','2025','93%','An auditor\u2019s numbers start counting down.'),
+   T('Kestrel Down','Action','2025','90%','One pilot, one storm, no runway.'),
+   T('Roadhouse Nine','Action','2024','88%','The last stop before nowhere gets loud.'),
+   T('Vault','Heist','2025','91%','A bank that only opens once a decade.')
+ ]},
+ {id:'comedy',title:'Comedies',sub:'',items:[
+   T('Rooftop Rebels','Comedy','2025','92%','Flatmates versus the housing society.'),
+   T('Chai & Circuits','Comedy','2024','87%','A startup powered by tea and denial.'),
+   T('The Understudies','Comedy','2025','85%','A theatre troupe that never gets the lead.'),
+   T('Family Group Chat','Comedy','2026','90%','Forty-two relatives, one very public mistake.'),
+   T('Two Left Feet','Comedy','2024','84%','A wedding, a dance class, zero coordination.'),
+   T('Small Talk','Comedy','2025','83%','A party where nobody knows anyone.')
+ ]},
+ {id:'docs',title:'Documentaries',sub:'',items:[
+   T('The Silent Fleet','Docu','2025','91%','The ships that vanish from every radar.'),
+   T('Salt Roads','Docu','2024','89%','The trade routes that shaped a coastline.'),
+   T('Deep Field','Docu','2026','93%','Looking further back than light should allow.'),
+   T('The Kiln','Docu','2024','86%','The last working pottery village.'),
+   T('Grid City','Docu','2025','88%','How a city keeps its lights on.'),
+   T('Nightshift','Docu','2024','85%','The people who work while you sleep.')
+ ]},
+ {id:'mylist',title:'My List',sub:'Saved by you',items:[
+   T('Midnight Circuit','Sci-Fi','2026','98%','Saved to your list.'),
+   T('The Cartographer','Adventure','2025','90%','Saved to your list.'),
+   T('Deep Field','Docu','2026','93%','Saved to your list.'),
+   T('Paper Tigers','Drama','2024','89%','Saved to your list.'),
+   T('Monsoon Letters','Romance','2025','89%','Saved to your list.')
+ ]}
+];
+
+const rowsEl=document.getElementById('rows');
+rows.forEach(r=>{
+  const sec=document.createElement('section');
+  sec.className='row';sec.id=r.id;
+  sec.innerHTML=`
+    <div class="row__head">
+      <h2 class="row__title">${r.title}</h2>
+      ${r.sub?`<span class="row__sub">${r.sub}</span>`:''}
+    </div>
+    <div class="row__wrap">
+      <button class="arrow left" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="row__track"></div>
+      <button class="arrow right" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>`;
+  const track=sec.querySelector('.row__track');
+  r.items.forEach((it,i)=>{
+    const c=document.createElement('article');
+    c.className='card';c.tabIndex=0;
+    c.innerHTML=`
+      <div class="card__art" style="background:${it.grad}"></div>
+      ${r.top?`<div class="card__top">${i+1}</div>`:''}
+      <span class="card__genre">${it.genre}</span>
+      <div class="card__title">${it.t}</div>`;
+    c.addEventListener('click',()=>openModal(it));
+    c.addEventListener('keydown',e=>{if(e.key==='Enter')openModal(it)});
+    track.appendChild(c);
+  });
+  sec.querySelector('.left').onclick=()=>track.scrollBy({left:-700,behavior:'smooth'});
+  sec.querySelector('.right').onclick=()=>track.scrollBy({left:700,behavior:'smooth'});
+  rowsEl.appendChild(sec);
+});
+
+/* nav scroll */
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40));
+document.getElementById('navToggle').onclick=()=>{
+  const l=document.querySelector('.nav__links');
+  l.style.display=l.style.display==='flex'?'none':'flex';
+  l.style.cssText+=';position:absolute;top:64px;left:0;right:0;flex-direction:column;background:rgba(11,11,11,.97);padding:18px 24px;border-bottom:1px solid var(--border)';
+};
+
+/* modal */
+const modal=document.getElementById('modal');
+function openModal(it){
+  document.getElementById('mBanner').style.background=it.grad;
+  document.getElementById('mTitle').textContent=it.t;
+  document.getElementById('mMeta').innerHTML=`<span class="match">${it.match} Match</span><span>${it.year}</span><span class="badge">${it.badge||'U/A 16+'}</span><span class="badge">HD</span>`;
+  document.getElementById('mDesc').textContent=it.desc;
+  document.getElementById('mGrid').innerHTML=`
+    <dt>Genre</dt><dd>${it.genre}</dd>
+    <dt>Cast</dt><dd>${it.cast||'Streamflix Ensemble'}</dd>
+    <dt>Creator</dt><dd>${it.creator||'Streamflix Originals'}</dd>
+    <dt>This title is</dt><dd>Fictional · Demo content</dd>`;
+  modal.classList.add('open');
+}
+function closeModal(){modal.classList.remove('open')}
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+</script>
+</body>
+</html>
